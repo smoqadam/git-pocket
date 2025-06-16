@@ -1,0 +1,33 @@
+name: Ingest Article
+
+on:
+  repository_dispatch:
+    types: [new-url]
+
+jobs:
+  extract_and_save:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install deps
+        run: pip install newspaper3k
+
+      - name: Extract and write article
+        run: |
+          echo '${{ toJson(github.event.client_payload) }}' > payload.json
+          python extract.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "readitlater[bot]"
+          git config user.email "readitlater@users.noreply.github.com"
+          git add entries/
+          git commit -m "Add article from ${{ github.event.client_payload.url }}"
+          git push
