@@ -17,8 +17,8 @@ def load_payload():
         url = payload["client_payload"]["url"]
         return url
     except KeyError:
-        print("No URL found in payload — likely triggered by push event. Exiting.")
-        sys.exit(0)
+        print("No URL found in payload — likely triggered by push event.")
+        return None
 
 def extract_article(url):
     article = Article(url)
@@ -33,13 +33,17 @@ def save_article_html(article, url):
     
     os.makedirs("entries", exist_ok=True)
     
+    # Check if article already exists to avoid duplicates
     existing_files = list(ENTRIES_DIR.glob("*.html"))
     for existing_file in existing_files:
-        with open(existing_file, 'r', encoding='utf-8') as f:
-            content = f.read()
-            if url in content:
-                print(f"Article from {url} already exists: {existing_file}")
-                return existing_file.name
+        try:
+            with open(existing_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+                if url in content:
+                    print(f"Article from {url} already exists: {existing_file}")
+                    return existing_file.name
+        except Exception as e:
+            print(f"Error checking existing file {existing_file}: {e}")
     
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -93,11 +97,14 @@ def save_article_html(article, url):
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html_content)
     
+    print(f"Saved new article: {filename}")
     return filename
 
 def generate_index():
     os.makedirs("entries", exist_ok=True)
     entries = sorted(ENTRIES_DIR.glob("*.html"), reverse=True)
+    
+    print(f"Found {len(entries)} total entries")
     
     links = []
     for entry in entries:
@@ -162,9 +169,14 @@ def generate_index():
 def main():
     url = load_payload()
     if url:
+        print(f"Processing URL: {url}")
         article = extract_article(url)
         save_article_html(article, url)
+    else:
+        print("No URL to process, just regenerating index")
+    
     generate_index()
+    print("Index regenerated successfully")
 
 if __name__ == "__main__":
     main()
