@@ -1,4 +1,6 @@
 name: Ingest Article
+permissions:
+  contents: write
 
 on:
   repository_dispatch:
