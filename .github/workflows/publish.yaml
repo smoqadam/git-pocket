@@ -17,6 +17,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Fetch gh-pages branch
+        run: |
+          git fetch origin gh-pages:gh-pages || echo "No gh-pages branch found"
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            git checkout gh-pages
+            mkdir -p entries
+            cp -r entries/* temp_entries/ 2>/dev/null || echo "No existing entries"
+            cp index.html temp_index.html 2>/dev/null || echo "No existing index"
+            git checkout main
+            mkdir -p entries
+            cp -r temp_entries/* entries/ 2>/dev/null || echo "No temp entries to restore"
+            cp temp_index.html index.html 2>/dev/null || echo "No temp index to restore"
+            rm -rf temp_entries temp_index.html 2>/dev/null || true
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:

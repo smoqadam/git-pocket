@@ -33,6 +33,14 @@ def save_article_html(article, url):
     
     os.makedirs("entries", exist_ok=True)
     
+    existing_files = list(ENTRIES_DIR.glob("*.html"))
+    for existing_file in existing_files:
+        with open(existing_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+            if url in content:
+                print(f"Article from {url} already exists: {existing_file}")
+                return existing_file.name
+    
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,15 +92,27 @@ def save_article_html(article, url):
     
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html_content)
+    
+    return filename
 
 def generate_index():
+    os.makedirs("entries", exist_ok=True)
     entries = sorted(ENTRIES_DIR.glob("*.html"), reverse=True)
     
     links = []
     for entry in entries:
-        filename = entry.name
-        title = filename.replace('.html', '').replace('-', ' ').title()
-        url = f"./entries/{filename}"
+        try:
+            with open(entry, 'r', encoding='utf-8') as f:
+                content = f.read()
+                title_match = re.search(r'<h1>(.*?)</h1>', content)
+                if title_match:
+                    title = title_match.group(1)
+                else:
+                    title = entry.name.replace('.html', '').replace('-', ' ').title()
+        except Exception:
+            title = entry.name.replace('.html', '').replace('-', ' ').title()
+        
+        url = f"./entries/{entry.name}"
         links.append(f'<li><a href="{url}">{title}</a></li>')
 
     html_content = f"""<!DOCTYPE html>
@@ -141,8 +161,9 @@ def generate_index():
 
 def main():
     url = load_payload()
-    article = extract_article(url)
-    save_article_html(article, url)
+    if url:
+        article = extract_article(url)
+        save_article_html(article, url)
     generate_index()
 
 if __name__ == "__main__":
