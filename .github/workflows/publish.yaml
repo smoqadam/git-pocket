@@ -9,12 +9,12 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: [new-url]
-    
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout source repo
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -24,25 +24,28 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-      
+
       - name: Extract and write article
         run: |
           echo '${{ toJson(github.event) }}' > payload.json
           python extract.py
-          
-      - name: Pull existing gh-pages content
+
+      - name: Prepare site folder
+        run: |
+          mkdir site
+
+      - name: Fetch existing gh-pages content
         run: |
           git fetch origin gh-pages
           git worktree add gh-pages origin/gh-pages
           cp -r gh-pages/* site/ || true
           git worktree remove gh-pages
 
-      - name: Copy site files
+      - name: Copy new entries and index
         run: |
-          mkdir site
           cp index.html site/
-          cp -r entries site/
-          
+          cp -r entries/* site/entries/
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
