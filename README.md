@@ -2,6 +2,8 @@
 
 A serverless "Read It Later" service that automatically extracts and saves web articles to a GitHub Pages site using GitHub Actions. Perfect for creating your own personal reading archive without any hosting costs.
 
+[Demo](https://smoqadam.github.io/rilga/index.html)
+
 ## Why This Exists
 
 In our information-rich world, we constantly come across interesting articles but don't always have time to read them immediately. Traditional read-later services are great, but they:
