@@ -30,12 +30,19 @@ jobs:
           echo '${{ toJson(github.event) }}' > payload.json
           python extract.py
           
+      - name: Pull existing gh-pages content
+        run: |
+          git fetch origin gh-pages
+          git worktree add gh-pages origin/gh-pages
+          cp -r gh-pages/* site/ || true
+          git worktree remove gh-pages
+
       - name: Copy site files
         run: |
           mkdir site
           cp index.html site/
           cp -r entries site/
-
+          
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
