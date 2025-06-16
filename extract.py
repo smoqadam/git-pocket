@@ -50,7 +50,7 @@ article.parse()
 
 slug = re.sub(r'[^a-zA-Z0-9\-]', '-', article.title.lower())[:50]
 timestamp = datetime.now().strftime("%Y-%m-%d-%H%M")
-filename = f"entries/{timestamp}-{slug}.md"
+filename = f"entries/{timestamp}-{slug}.html"
 
 os.makedirs("entries", exist_ok=True)
 
