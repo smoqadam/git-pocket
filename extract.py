@@ -1,7 +1,7 @@
 import json
 from newspaper import Article
 from datetime import datetime
-import os
+import sys
 import re
 import os
 from pathlib import Path
@@ -38,7 +38,12 @@ def generate_index():
 with open("payload.json") as f:
     payload = json.load(f)
 
-url = payload["url"]
+try:
+    url = payload["client_payload"]["url"]
+except KeyError:
+    print("No URL found in payload — likely triggered by push event. Exiting.")
+    sys.exit(0)
+
 article = Article(url)
 article.download()
 article.parse()
