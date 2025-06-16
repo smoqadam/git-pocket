@@ -1,4 +1,4 @@
-# Read It Later - GitHub Actions Edition
+# Read It Later - GitHub Actions
 
 A serverless "Read It Later" service that automatically extracts and saves web articles to a GitHub Pages site using GitHub Actions. Perfect for creating your own personal reading archive without any hosting costs.
 
