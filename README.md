@@ -1,25 +1,11 @@
 # Read It Later - GitHub Actions
 
-A serverless "Read It Later" service that automatically extracts and saves web articles to a GitHub Pages site using GitHub Actions. Perfect for creating your own personal reading archive without any hosting costs.
-
+A lightweight "Read It Later" tool that saves web articles to your own GitHub Pages site using GitHub Actions. Your personal reading archive powered by GitHub.
 [Demo](https://smoqadam.github.io/rilga/index.html)
 
 ## Why This Exists
 
-In our information-rich world, we constantly come across interesting articles but don't always have time to read them immediately. Traditional read-later services are great, but they:
-
-- Store your data on third-party servers
-- Often require subscriptions for advanced features
-- May disappear or change their terms of service
-- Don't give you full control over your reading archive
-
-This project solves these problems by:
-
-- **Using GitHub as your backend** - Your articles are stored in your own repository
-- **Zero hosting costs** - Leverages GitHub Pages for free hosting
-- **Complete ownership** - All your data stays in your GitHub account
-- **Automatic archiving** - Articles are extracted and formatted for offline reading
-- **Simple interface** - Clean, readable HTML pages with navigation
+GitHub is free and many developers already use it. This project turns your GitHub account into a personal read-it-later service. No subscriptions, no third-party storage, just your own archive built with tools you already have.
 
 ## How It Works
 
