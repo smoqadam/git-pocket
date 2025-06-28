@@ -1,161 +1,360 @@
 html, body {
-    background: #fff;
-    color: #181818;
-    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    background: #fefefe;
+    color: #2a2a2a;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Text', Roboto, sans-serif;
     font-size: 18px;
-    line-height: 1.7;
+    line-height: 1.6;
     margin: 0;
     padding: 0;
-}
-.container {
-    max-width: 700px;
+    font-feature-settings: "liga" 1, "kern" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .container {
+    max-width: 720px;
     margin: 0 auto;
-    padding: 40px 16px 0 16px;
-}
-.header {
+    padding: 48px 24px 0 24px;
+  }
+  
+  .header {
     text-align: left;
-    margin-bottom: 32px;
-}
-.header h1 {
-    font-size: 2.5em;
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  
+  .header h1 {
+    font-size: 2.75rem;
     font-weight: 700;
-    margin-bottom: 0.2em;
-    letter-spacing: -1px;
-}
-.header p {
-    font-size: 1.1em;
-    color: #444;
+    margin-bottom: 0.3em;
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
+    line-height: 1.15;
+  }
+  
+  .header p {
+    font-size: 1.125rem;
+    color: #525252;
     margin-top: 0;
-}
-.search-container {
-    margin-bottom: 32px;
-}
-.search-box {
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  
+  .search-container {
+    margin-bottom: 40px;
+  }
+  
+  .search-box {
     width: 100%;
-    padding: 14px 12px;
-    font-size: 1em;
-    border: 1px solid #bbb;
-    background: #fafafa;
-    color: #222;
+    padding: 16px 18px;
+    font-size: 1.05rem;
+    border: 2px solid #d1d5db;
+    background: #ffffff;
+    color: #1f2937;
     outline: none;
-    margin-bottom: 10px;
-    font-family: inherit;
-    border-radius: 0;
-    box-shadow: none;
-}
-.search-box:focus {
-    border-color: #181818;
-}
-.stats {
-    color: #666;
-    font-size: 0.95em;
-    margin-top: 4px;
-}
-.articles-grid {
-    min-height: 180px;
-    margin-bottom: 32px;
-}
-.article-card {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 24px;
-    padding: 24px;
-    border-radius: 0;
-    box-shadow: none;
-    transition: background 0.2s;
-}
-.article-card:hover {
-    background: #f5f5f5;
-}
-.article-content {
-    padding: 0;
-}
-.article-title {
-    font-size: 1.3em;
-    font-weight: 600;
-    color: #181818;
     margin-bottom: 12px;
-    line-height: 1.4;
+    font-family: inherit;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .search-box:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    background: #ffffff;
+  }
+  
+  .search-box::placeholder {
+    color: #9ca3af;
+    font-weight: 400;
+  }
+  
+  .stats {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+  
+  .articles-grid {
+    min-height: 200px;
+    margin-bottom: 40px;
+  }
+  
+  .article-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 28px;
+    padding: 28px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+  
+  .article-card:hover {
+    background: #fafafa;
+    border-color: #d1d5db;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+  
+  .article-content {
+    padding: 0;
+  }
+  
+  .article-title {
+    font-size: 1.4rem;
+    font-weight: 650;
+    color: #111827;
+    margin-bottom: 14px;
+    line-height: 1.35;
     text-decoration: none;
-}
-.article-title:hover {
+    letter-spacing: -0.01em;
+    transition: color 0.2s ease;
+  }
+  
+  .article-title:hover {
+    color: #4f46e5;
     text-decoration: underline;
-    color: #222;
-}
-.article-meta {
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  
+  .article-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 10px;
-    color: #666;
-    font-size: 0.95em;
-}
-.meta-item {
+    gap: 18px;
+    margin-bottom: 14px;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  .meta-item {
     display: flex;
     align-items: center;
-    gap: 5px;
-}
-.article-summary {
-    color: #444;
-    line-height: 1.6;
-    margin-bottom: 10px;
-}
-.article-keywords {
+    gap: 6px;
+  }
+  
+  .article-summary {
+    color: #374151;
+    line-height: 1.65;
+    margin-bottom: 16px;
+    font-size: 1rem;
+    font-family: 'Charter', 'Georgia', serif;
+  }
+  
+  .article-keywords {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
-}
-.keyword {
-    background: #f0f0f0;
-    color: #555;
-    padding: 4px 8px;
-    border-radius: 0;
-    font-size: 0.85em;
-}
-.placeholder-message {
-    text-align: center;
-    color: #222;
-    margin-top: 48px;
-}
-.placeholder-message h3 {
-    font-size: 1.3em;
-    font-weight: 600;
-    margin-bottom: 0.5em;
-    letter-spacing: -0.5px;
-}
-.placeholder-message p {
-    color: #555;
-    font-size: 1em;
-}
-.no-results {
-    text-align: center;
-    color: #888;
-    font-size: 1.1em;
-    margin-top: 40px;
-}
-.rss-link {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: #181818;
-    color: #fff;
-    padding: 10px 18px;
-    font-size: 1em;
-    text-decoration: none;
-    border-radius: 0;
-    box-shadow: none;
-    letter-spacing: 1px;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  
+  .keyword {
+    background: #f3f4f6;
+    color: #4b5563;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
     font-weight: 500;
-    transition: background 0.2s;
-}
-.rss-link:hover {
-    background: #444;
-}
-@media (max-width: 600px) {
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+  }
+  
+  .keyword:hover {
+    background: #e5e7eb;
+    color: #374151;
+    border-color: #d1d5db;
+  }
+  
+  .placeholder-message {
+    text-align: center;
+    color: #1f2937;
+    margin-top: 64px;
+  }
+  
+  .placeholder-message h3 {
+    font-size: 1.5rem;
+    font-weight: 650;
+    margin-bottom: 0.75em;
+    letter-spacing: -0.01em;
+    color: #111827;
+  }
+  
+  .placeholder-message p {
+    color: #6b7280;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  
+  .no-results {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 1.125rem;
+    margin-top: 48px;
+    font-weight: 500;
+  }
+  
+  .rss-link {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: #1f2937;
+    color: #ffffff;
+    padding: 14px 20px;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+  }
+  
+  .rss-link:hover {
+    background: #374151;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Enhanced focus states for accessibility */
+  .search-box:focus-visible,
+  .article-title:focus-visible,
+  .rss-link:focus-visible {
+    outline: 2px solid #4f46e5;
+    outline-offset: 2px;
+  }
+  
+  /* Loading states and micro-interactions */
+  .article-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .article-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #4f46e5, transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .article-card:hover::before {
+    left: 100%;
+  }
+  
+  /* Typography hierarchy improvements */
+  .article-title {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  .header h1 {
+    background: linear-gradient(135deg, #1f2937 0%, #4f46e5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Responsive design optimizations */
+  @media (max-width: 768px) {
     .container {
-        padding: 24px 6px 0 6px;
+      padding: 32px 16px 0 16px;
     }
+    
     .header h1 {
-        font-size: 1.5em;
+      font-size: 2.25rem;
+      line-height: 1.2;
     }
-}
+    
+    .header p {
+      font-size: 1.05rem;
+    }
+    
+    .search-box {
+      padding: 14px 16px;
+      font-size: 1rem;
+    }
+    
+    .article-card {
+      padding: 24px 20px;
+      margin-bottom: 24px;
+    }
+    
+    .article-title {
+      font-size: 1.25rem;
+      line-height: 1.4;
+    }
+    
+    .article-meta {
+      gap: 14px;
+      font-size: 0.85rem;
+    }
+    
+    .rss-link {
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 18px;
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      padding: 24px 12px 0 12px;
+    }
+    
+    .header {
+      margin-bottom: 32px;
+    }
+    
+    .header h1 {
+      font-size: 1.875rem;
+    }
+    
+    .header p {
+      font-size: 1rem;
+    }
+    
+    .search-container {
+      margin-bottom: 32px;
+    }
+    
+    .article-card {
+      padding: 20px 16px;
+      border-radius: 8px;
+    }
+    
+    .article-title {
+      font-size: 1.2rem;
+    }
+    
+    .article-meta {
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    
+    .placeholder-message {
+      margin-top: 48px;
+    }
+    
+    .placeholder-message h3 {
+      font-size: 1.3rem;
+    }
+    
+    .placeholder-message p {
+      font-size: 1rem;
+    }
+  }
+  
+  /* Keep light theme only - removed dark mode overrides */
