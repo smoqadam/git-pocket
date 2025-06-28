@@ -68,6 +68,7 @@ jobs:
           cp -r entries site/
           cp -r images site/ 2>/dev/null || echo "No images directory found"
           cp -r templates site/ 2>/dev/null || echo "No templates directory found"
+          echo "gitpocket.saeedm.com" > site/CNAME
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
