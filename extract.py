@@ -15,12 +15,22 @@ from bs4 import BeautifulSoup
 
 ENTRIES_DIR = Path("entries")
 IMAGES_DIR = Path("images")
+TEMPLATES_DIR = Path("templates")
 INDEX_FILE = Path("index.html")
 RSS_FILE = Path("rss.xml")
 METADATA_FILE = Path("metadata.json")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+def load_template(template_name):
+    try:
+        template_path = TEMPLATES_DIR / template_name
+        with open(template_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except Exception as e:
+        logger.error(f"Error loading template {template_name}: {e}")
+        raise
 
 def load_payload():
     try:
@@ -147,137 +157,21 @@ def save_article_html(article, url):
         
         publish_date = article.publish_date.isoformat() if article.publish_date else datetime.now().isoformat()
         
-        html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{article.title}</title>
-    <meta name="author" content="{', '.join(article.authors)}">
-    <meta name="description" content="{article.summary[:160]}">
-    <style>
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.7;
-            color: #333;
-            background-color: #fafafa;
-        }}
-        .nav {{
-            margin-bottom: 30px;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }}
-        .nav a {{
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }}
-        .nav a:hover {{
-            text-decoration: underline;
-        }}
-        .article-header {{
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }}
-        h1 {{
-            font-size: 2.2em;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            line-height: 1.3;
-        }}
-        .metadata {{
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 20px;
-            color: #666;
-            font-size: 0.9em;
-        }}
-        .metadata-item {{
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }}
-        .source {{
-            color: #007acc;
-            text-decoration: none;
-            border: 1px solid #007acc;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.85em;
-            transition: all 0.3s ease;
-        }}
-        .source:hover {{
-            background-color: #007acc;
-            color: white;
-        }}
-        .content {{
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            text-align: justify;
-        }}
-        .content p {{
-            margin-bottom: 20px;
-        }}
-        .content img {{
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin: 20px 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }}
-        .summary {{
-            background: #f8f9fa;
-            padding: 20px;
-            border-left: 4px solid #007acc;
-            margin-bottom: 30px;
-            border-radius: 0 10px 10px 0;
-            font-style: italic;
-        }}
-        @media (max-width: 768px) {{
-            body {{ padding: 10px; }}
-            .article-header, .content {{ padding: 20px; }}
-            h1 {{ font-size: 1.8em; }}
-            .metadata {{ justify-content: center; }}
-        }}
-    </style>
-</head>
-<body>
-    <div class="nav">
-        <a href="../index.html">← Back to Index</a>
-    </div>
-    <div class="article-header">
-        <h1>{article.title}</h1>
-        <div class="metadata">
-            <div class="metadata-item">📅 {publish_date[:10]}</div>
-            {f'<div class="metadata-item">✍️ {", ".join(article.authors)}</div>' if article.authors else ''}
-            <div class="metadata-item">🔗 <a href="{url}" class="source" target="_blank">Original Source</a></div>
-        </div>
-        {f'<div class="summary"><strong>Summary:</strong> {article.summary}</div>' if article.summary else ''}
-    </div>
-    <div class="content">
-        {article_content.replace(chr(10), '</p><p>')}
-    </div>
-</body>
-</html>"""
+        template = load_template('article.html')
+        
+        author_section = f'<div class="metadata-item">✍️ {", ".join(article.authors)}</div>' if article.authors else ''
+        summary_section = f'<div class="summary"><strong>Summary:</strong> {article.summary}</div>' if article.summary else ''
+        
+        html_content = template.format(
+            title=article.title,
+            authors=', '.join(article.authors),
+            summary=article.summary[:160] if article.summary else '',
+            date=publish_date[:10],
+            url=url,
+            author_section=author_section,
+            summary_section=summary_section,
+            content=article_content.replace(chr(10), '</p><p>')
+        )
         
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(html_content)
@@ -350,163 +244,39 @@ def generate_index():
                 'keywords': entry_data.get('keywords', [])
             })
 
-        html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Read It Later - Personal Archive</title>
-    <style>
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }}
-        .container {{
-            max-width: 1200px;
-            margin: 0 auto;
-        }}
-        .header {{
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-        }}
-        .header h1 {{
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }}
-        .header p {{
-            font-size: 1.2em;
-            opacity: 0.9;
-        }}
-        .search-container {{
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-        }}
-        .search-box {{
-            width: 100%;
-            padding: 15px 20px;
-            font-size: 1.1em;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }}
-        .search-box:focus {{
-            border-color: #667eea;
-        }}
-        .stats {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            color: #666;
-            font-size: 0.9em;
-        }}
-        .articles-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-        }}
-        .article-card {{
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }}
-        .article-card:hover {{
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }}
-        .article-content {{
-            padding: 25px;
-        }}
-        .article-title {{
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            line-height: 1.4;
-            text-decoration: none;
-        }}
-        .article-title:hover {{
-            color: #667eea;
-        }}
-        .article-meta {{
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 15px;
-            color: #666;
-            font-size: 0.85em;
-        }}
-        .meta-item {{
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }}
-        .article-summary {{
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }}
-        .article-keywords {{
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }}
-        .keyword {{
-            background: #f0f2f5;
-            color: #555;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75em;
-        }}
-        .no-results {{
-            text-align: center;
-            color: white;
-            font-size: 1.2em;
-            margin-top: 50px;
-        }}
-        .rss-link {{
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #ff6b35;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 25px;
-            text-decoration: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
-        }}
-        .rss-link:hover {{
-            transform: scale(1.05);
-        }}
-        @media (max-width: 768px) {{
-            .header h1 {{ font-size: 2em; }}
-            .articles-grid {{ grid-template-columns: 1fr; }}
-            .stats {{ flex-direction: column; gap: 10px; text-align: center; }}
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>📚 Read It Later</h1>
-            <p>Your Personal Article Archive</p>
-        </div>
+        articles_html = ""
+        for article in article_data:
+            keyword_tags = ''.join([f'<span class="keyword">{keyword}</span>' for keyword in article['keywords'][:5]])
+            author_meta = f'<div class="meta-item">✍️ {article["authors"]}</div>' if article['authors'] else ''
+            summary_div = f'<div class="article-summary">{article["summary"]}</div>' if article['summary'] else ''
+            keywords_div = f'<div class="article-keywords">{keyword_tags}</div>' if article['keywords'] else ''
+            
+            articles_html += f'''
+            <div class="article-card" data-title="{article['title'].lower()}" data-author="{article['authors'].lower()}" data-keywords="{' '.join(article['keywords']).lower()}">
+                <div class="article-content">
+                    <a href="./entries/{article['filename']}" class="article-title">{article['title']}</a>
+                    <div class="article-meta">
+                        <div class="meta-item">📅 {article['date']}</div>
+                        {author_meta}
+                    </div>
+                    {summary_div}
+                    {keywords_div}
+                </div>
+            </div>
+            '''
+
+        template = load_template('index.html')
         
-        <div class="search-container">
-            <input type="text" id="searchBox" class="search-box
+        html_content = template.format(
+            total_count=len(article_data),
+            articles_html=articles_html
+        )
+        
+        with open(INDEX_FILE, "w", encoding="utf-8") as f:
+            f.write(html_content)
+            
+        logger.info("Index generated successfully")
+        
+    except Exception as e:
+        logger.error(f"Error generating index: {e}")
+        raise
