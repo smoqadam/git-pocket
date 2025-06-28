@@ -6,13 +6,13 @@ A powerful "Read It Later" tool that saves web articles to your own GitHub Pages
 
 ## ✨ Features
 
-- **📚 Article Extraction**: Clean article text with metadata (author, date, summary)
-- **🔍 Full-Text Search**: JavaScript-powered search through titles, authors, and keywords
+- **📚 Article Extraction**: Clean article text with metadata (author, date)
+- **🔍 Full-Text Search**: JavaScript-powered search through titles and authors
 - **📱 Responsive Design**: Beautiful, mobile-friendly interface
 - **🖼️ Image Handling**: Downloads and optimizes images for offline viewing
 - **📡 RSS Feed**: Auto-generated RSS feed for your saved articles
 - **🔄 Duplicate Detection**: Prevents saving the same article twice
-- **📊 Rich Metadata**: Extracts and displays author, date, summary, and keywords
+- **📊 Rich Metadata**: Extracts and displays author and date
 - **🎨 Modern UI**: Clean, professional design with hover effects and animations
 - **📖 Reading Experience**: Optimized typography and layout for comfortable reading
 
@@ -27,7 +27,7 @@ The system uses GitHub's repository dispatch feature to trigger article extracti
 1. **You send a URL** via HTTP POST request to GitHub's API
 2. **GitHub Actions triggers** and checks out your repository
 3. **Article extraction** happens using Python's newspaper library
-4. **Metadata is extracted** (author, date, summary, keywords)
+4. **Metadata is extracted** (author, date)
 5. **Images are downloaded** and optimized for local storage
 6. **Content is saved** as a formatted HTML file with rich styling
 7. **Search index is updated** with article metadata
@@ -120,7 +120,7 @@ Once articles are processed, visit your GitHub Pages URL:
 ## 🎯 New Features Usage
 
 ### Search Functionality
-- Use the search box on the index page to find articles by title, author, or keywords
+- Use the search box on the index page to find articles by title or author
 - Press Escape to clear the search
 - Real-time filtering as you type
 
@@ -130,8 +130,7 @@ Once articles are processed, visit your GitHub Pages URL:
 - Contains the latest 20 articles
 
 ### Rich Metadata
-- Each article displays author, publication date, and summary
-- Keywords are extracted and displayed as tags
+- Each article displays author and publication date
 - Clean, readable layout with improved typography
 
 ### Image Handling

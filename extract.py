@@ -53,7 +53,6 @@ def extract_article(url):
         article = Article(url)
         article.download()
         article.parse()
-        article.nlp()
         logger.info(f"Successfully extracted article: {article.title}")
         return article
     except Exception as e:
@@ -160,16 +159,13 @@ def save_article_html(article, url):
         template = load_template('article.html')
         
         author_section = f'<div class="metadata-item">✍️ {", ".join(article.authors)}</div>' if article.authors else ''
-        summary_section = f'<div class="summary"><strong>Summary:</strong> {article.summary}</div>' if article.summary else ''
         
         html_content = template.format(
             title=article.title,
             authors=', '.join(article.authors),
-            summary=article.summary[:160] if article.summary else '',
             date=publish_date[:10],
             url=url,
             author_section=author_section,
-            summary_section=summary_section,
             content=article_content.replace(chr(10), '</p><p>')
         )
         
@@ -185,8 +181,6 @@ def save_article_html(article, url):
             'filename': filename,
             'date': publish_date,
             'authors': article.authors,
-            'summary': article.summary,
-            'keywords': article.keywords[:10] if article.keywords else []
         }
         save_metadata(metadata)
         
@@ -212,7 +206,6 @@ def generate_rss():
         for entry_id, entry_data in sorted_entries[:20]:
             fe = fg.add_entry()
             fe.title(entry_data['title'])
-            fe.description(entry_data.get('summary', ''))
             fe.link(href=entry_data['url'])
             fe.guid(entry_data['url'])
             fe.pubDate(entry_data['date'])
@@ -240,27 +233,20 @@ def generate_index():
                 'filename': entry_data['filename'],
                 'date': entry_data.get('date', '').split('T')[0],
                 'authors': ', '.join(entry_data.get('authors', [])),
-                'summary': entry_data.get('summary', '')[:150] + '...' if entry_data.get('summary', '') else '',
-                'keywords': entry_data.get('keywords', [])
             })
 
         articles_html = ""
         for article in article_data:
-            keyword_tags = ''.join([f'<span class="keyword">{keyword}</span>' for keyword in article['keywords'][:5]])
             author_meta = f'<div class="meta-item">✍️ {article["authors"]}</div>' if article['authors'] else ''
-            summary_div = f'<div class="article-summary">{article["summary"]}</div>' if article['summary'] else ''
-            keywords_div = f'<div class="article-keywords">{keyword_tags}</div>' if article['keywords'] else ''
             
             articles_html += f'''
-            <div class="article-card" data-title="{article['title'].lower()}" data-author="{article['authors'].lower()}" data-keywords="{' '.join(article['keywords']).lower()}">
+            <div class="article-card" data-title="{article['title'].lower()}" data-author="{article['authors'].lower()}">
                 <div class="article-content">
                     <a href="./entries/{article['filename']}" class="article-title">{article['title']}</a>
                     <div class="article-meta">
                         <div class="meta-item">📅 {article['date']}</div>
                         {author_meta}
                     </div>
-                    {summary_div}
-                    {keywords_div}
                 </div>
             </div>
             '''
@@ -280,3 +266,45 @@ def generate_index():
     except Exception as e:
         logger.error(f"Error generating index: {e}")
         raise
+
+def main():
+    try:
+        logger.info("Starting extraction process...")
+        
+        url = load_payload()
+        if url:
+            logger.info(f"Processing URL: {url}")
+            try:
+                article = extract_article(url)
+                if article and article.title:
+                    save_article_html(article, url)
+                    logger.info("Article saved successfully")
+                else:
+                    logger.error("Failed to extract article or article has no title")
+            except Exception as e:
+                logger.error(f"Failed to process article: {e}")
+        else:
+            logger.info("No URL to process, regenerating index and RSS")
+        
+        try:
+            generate_index()
+            logger.info("Index generated successfully")
+        except Exception as e:
+            logger.error(f"Failed to generate index: {e}")
+        
+        try:
+            generate_rss()
+            logger.info("RSS generated successfully")
+        except Exception as e:
+            logger.error(f"Failed to generate RSS: {e}")
+        
+        logger.info("Process completed")
+        
+    except Exception as e:
+        logger.error(f"Fatal error in main process: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

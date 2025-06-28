@@ -67,6 +67,7 @@ jobs:
           cp metadata.json site/ 2>/dev/null || echo "No metadata file found"
           cp -r entries site/
           cp -r images site/ 2>/dev/null || echo "No images directory found"
+          cp -r templates site/ 2>/dev/null || echo "No templates directory found"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
