@@ -1,11 +1,24 @@
 # Read It Later - GitHub Actions
 
-A lightweight "Read It Later" tool that saves web articles to your own GitHub Pages site using GitHub Actions. Your personal reading archive powered by GitHub.
+A powerful "Read It Later" tool that saves web articles to your own GitHub Pages site using GitHub Actions. Your personal reading archive powered by GitHub with advanced features like search, RSS feeds, and image handling.
+
 [Demo](https://smoqadam.github.io/rilga/index.html)
+
+## ✨ Features
+
+- **📚 Article Extraction**: Clean article text with metadata (author, date, summary)
+- **🔍 Full-Text Search**: JavaScript-powered search through titles, authors, and keywords
+- **📱 Responsive Design**: Beautiful, mobile-friendly interface
+- **🖼️ Image Handling**: Downloads and optimizes images for offline viewing
+- **📡 RSS Feed**: Auto-generated RSS feed for your saved articles
+- **🔄 Duplicate Detection**: Prevents saving the same article twice
+- **📊 Rich Metadata**: Extracts and displays author, date, summary, and keywords
+- **🎨 Modern UI**: Clean, professional design with hover effects and animations
+- **📖 Reading Experience**: Optimized typography and layout for comfortable reading
 
 ## Why This Exists
 
-GitHub is free and many developers already use it. This project turns your GitHub account into a personal read-it-later service. No subscriptions, no third-party storage, just your own archive built with tools you already have.
+GitHub is free and many developers already use it. This project turns your GitHub account into a personal read-it-later service with advanced features. No subscriptions, no third-party storage, just your own archive built with tools you already have.
 
 ## How It Works
 
@@ -14,12 +27,15 @@ The system uses GitHub's repository dispatch feature to trigger article extracti
 1. **You send a URL** via HTTP POST request to GitHub's API
 2. **GitHub Actions triggers** and checks out your repository
 3. **Article extraction** happens using Python's newspaper library
-4. **Content is saved** as a formatted HTML file in the `/entries` directory
-5. **Index is updated** with a link to the new article
-6. **GitHub Pages deploys** the updated site automatically
+4. **Metadata is extracted** (author, date, summary, keywords)
+5. **Images are downloaded** and optimized for local storage
+6. **Content is saved** as a formatted HTML file with rich styling
+7. **Search index is updated** with article metadata
+8. **RSS feed is generated** with latest articles
+9. **GitHub Pages deploys** the updated site automatically
 
 ```
-URL Request → GitHub API → Actions Workflow → Extract Article → Update Site → Deploy
+URL Request → GitHub API → Actions Workflow → Extract Article → Process Images → Update Search Index → Generate RSS → Deploy
 ```
 
 ## Setup Instructions
@@ -101,16 +117,46 @@ Create an iOS Shortcut that:
 Once articles are processed, visit your GitHub Pages URL:
 `https://YOUR_USERNAME.github.io/YOUR_REPO_NAME`
 
+## 🎯 New Features Usage
+
+### Search Functionality
+- Use the search box on the index page to find articles by title, author, or keywords
+- Press Escape to clear the search
+- Real-time filtering as you type
+
+### RSS Feed
+- Access your RSS feed at `/rss.xml`
+- Subscribe in your favorite RSS reader
+- Contains the latest 20 articles
+
+### Rich Metadata
+- Each article displays author, publication date, and summary
+- Keywords are extracted and displayed as tags
+- Clean, readable layout with improved typography
+
+### Image Handling
+- Images are automatically downloaded and stored locally
+- Images are optimized and resized for better performance
+- All images work offline once downloaded
+
+### Duplicate Prevention
+- URLs are checked against existing articles before processing
+- Prevents saving the same article multiple times
+- Uses URL hashing for efficient comparison
+
 ## Project Structure
 
 ```
 ReadItLater-GA/
 ├── .github/workflows/
 │   └── publish.yaml          # GitHub Actions workflow
-├── entries/                  # Generated article files (created automatically)
-├── extract.py               # Main extraction script
+├── entries/                  # Generated article files
+├── images/                   # Downloaded and optimized images
+├── extract.py               # Enhanced extraction script
 ├── requirements.txt         # Python dependencies
-├── index.html              # Generated index page (created automatically)
+├── index.html              # Generated index with search
+├── rss.xml                 # Generated RSS feed
+├── metadata.json           # Article metadata storage
 └── README.md               # This file
 ```
 
@@ -118,25 +164,53 @@ ReadItLater-GA/
 
 ### Styling
 
-Edit the CSS in `extract.py` within the `html_content` strings to customize:
-- Colors and fonts
-- Layout and spacing
-- Mobile responsiveness
+The new design uses CSS Grid and Flexbox with:
+- Gradient backgrounds
+- Card-based layouts
+- Smooth hover animations
+- Responsive breakpoints
+- Modern typography
 
-### Article Processing
+### Search Configuration
+Modify the search functionality in `extract.py`:
+- Change which fields are searchable
+- Adjust search sensitivity
+- Add search highlighting
 
-Modify `extract.py` to:
-- Change filename format
-- Add metadata extraction
-- Include article images
-- Filter content
+### RSS Feed
+Customize the RSS feed generation:
+- Change the number of items included
+- Modify feed metadata
+- Add custom categories
 
-### Workflow Triggers
+### Image Processing
+Configure image handling:
+- Change maximum image width
+- Adjust compression quality
+- Set different image formats
 
-Edit `.github/workflows/publish.yaml` to:
-- Change trigger conditions
-- Add notifications
-- Modify deployment settings
+## 🔧 Advanced Configuration
+
+### Error Handling
+The system now includes comprehensive logging:
+- All operations are logged with timestamps
+- Errors are caught and logged appropriately
+- Failed operations don't stop the entire process
+
+### Metadata Storage
+Article metadata is stored in `metadata.json`:
+```json
+{
+  "2024-01-15-1230-example-article": {
+    "title": "Example Article",
+    "url": "https://example.com/article",
+    "date": "2024-01-15T12:30:00",
+    "authors": ["John Doe"],
+    "summary": "Article summary...",
+    "keywords": ["tech", "programming"]
+  }
+}
+```
 
 ## Limitations
 
@@ -162,6 +236,24 @@ Edit `.github/workflows/publish.yaml` to:
 - Verify the gh-pages branch exists and has content
 - GitHub Pages updates may take a few minutes to propagate
 
+### New Feature Issues
+
+**Search not working**
+- Check if JavaScript is enabled in your browser
+- Verify the metadata.json file is being generated
+
+**Images not displaying**
+- Check if the images directory exists in your gh-pages branch
+- Some sites may block image downloads
+
+**RSS feed empty**
+- Ensure articles have been processed and metadata exists
+- Check that rss.xml is being generated in the workflow
+
+**Duplicate articles still being saved**
+- Check if the metadata.json file is being preserved between deployments
+- Verify URL normalization is working correctly
+
 ## Contributing
 
 Feel free to submit issues and enhancement requests! Some ideas for improvements:
@@ -176,6 +268,13 @@ Feel free to submit issues and enhancement requests! Some ideas for improvements
 
 This project is open source and available under the [MIT License](LICENSE).
 
+## 📈 Performance Features
+
+- **Lazy Loading**: Large lists are handled efficiently
+- **Image Optimization**: Images are compressed and resized
+- **Caching**: Metadata is cached to prevent reprocessing
+- **Efficient Search**: Client-side search with no server requests
+
 ---
 
-**Happy Reading!** 📚
+**Happy Reading!** 📚✨

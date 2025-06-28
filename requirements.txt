@@ -1,2 +1,6 @@
 newspaper3k
 lxml[html_clean]
+beautifulsoup4
+requests
+pillow
+feedgen

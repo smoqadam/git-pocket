@@ -19,22 +19,28 @@ jobs:
 
       - name: Fetch existing gh-pages content
         run: |
-          # Create entries directory if it doesn't exist
-          mkdir -p entries
+          mkdir -p entries images
           
-          # Fetch existing content from gh-pages branch
           if git ls-remote --exit-code --heads origin gh-pages; then
             echo "Fetching existing content from gh-pages..."
             git fetch origin gh-pages
             git worktree add temp-gh-pages origin/gh-pages
             
-            # Copy existing entries to current directory
             if [ -d "temp-gh-pages/entries" ]; then
               cp -r temp-gh-pages/entries/* entries/ 2>/dev/null || echo "No existing entries found"
               echo "Copied existing entries to working directory"
             fi
             
-            # Clean up worktree
+            if [ -d "temp-gh-pages/images" ]; then
+              cp -r temp-gh-pages/images/* images/ 2>/dev/null || echo "No existing images found"
+              echo "Copied existing images to working directory"
+            fi
+            
+            if [ -f "temp-gh-pages/metadata.json" ]; then
+              cp temp-gh-pages/metadata.json .
+              echo "Copied existing metadata"
+            fi
+            
             git worktree remove temp-gh-pages
           else
             echo "No existing gh-pages branch found, starting fresh"
@@ -57,7 +63,10 @@ jobs:
         run: |
           mkdir site
           cp index.html site/
+          cp rss.xml site/ 2>/dev/null || echo "No RSS file found"
+          cp metadata.json site/ 2>/dev/null || echo "No metadata file found"
           cp -r entries site/
+          cp -r images site/ 2>/dev/null || echo "No images directory found"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
