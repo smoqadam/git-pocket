@@ -2,7 +2,6 @@ import json
 import logging
 import hashlib
 import urllib.parse
-from newspaper import Article
 from datetime import datetime
 import sys
 import re
@@ -12,6 +11,7 @@ import requests
 from PIL import Image
 from feedgen.feed import FeedGenerator
 from bs4 import BeautifulSoup
+from readability import Document
 
 ENTRIES_DIR = Path("entries")
 IMAGES_DIR = Path("images")
@@ -47,17 +47,6 @@ def load_payload():
     except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
         logger.error(f"Error loading payload: {e}")
         return None
-
-def extract_article(url):
-    try:
-        article = Article(url)
-        article.download()
-        article.parse()
-        logger.info(f"Successfully extracted article: {article.title}")
-        return article
-    except Exception as e:
-        logger.error(f"Error extracting article from {url}: {e}")
-        raise
 
 def get_url_hash(url):
     return hashlib.md5(url.encode()).hexdigest()[:8]
@@ -104,29 +93,66 @@ def download_image(img_url, filename):
         logger.error(f"Error downloading image {img_url}: {e}")
         return None
 
-def process_images(article_text, article_url, slug):
+def extract_article(url):
     try:
-        soup = BeautifulSoup(article_text, 'html.parser')
+        resp = requests.get(url, timeout=15)
+        resp.raise_for_status()
+        doc = Document(resp.text)
+        title = doc.short_title()
+        summary_html = doc.summary(html_partial=False)
+        soup = BeautifulSoup(summary_html, "html.parser")
+
+        # Try to extract author from meta tags
+        author = ""
+        meta_author = soup.find("meta", attrs={"name": "author"})
+        if meta_author and meta_author.get("content"):
+            author = meta_author["content"]
+        else:
+            # Try Open Graph
+            og_author = soup.find("meta", attrs={"property": "article:author"})
+            if og_author and og_author.get("content"):
+                author = og_author["content"]
+
+        # Try to extract publish date from meta tags
+        date = ""
+        meta_date = soup.find("meta", attrs={"property": "article:published_time"})
+        if meta_date and meta_date.get("content"):
+            date = meta_date["content"]
+        else:
+            meta_date = soup.find("meta", attrs={"name": "date"})
+            if meta_date and meta_date.get("content"):
+                date = meta_date["content"]
+
+        logger.info(f"Successfully extracted article: {title}")
+        return {
+            "title": title,
+            "content_html": str(soup),
+            "authors": [author] if author else [],
+            "publish_date": date,
+            "url": url,
+        }
+    except Exception as e:
+        logger.error(f"Error extracting article from {url}: {e}")
+        raise
+
+def process_images(article_html, article_url, slug):
+    try:
+        soup = BeautifulSoup(article_html, 'html.parser')
         images = soup.find_all('img')
-        
         for i, img in enumerate(images):
             img_url = img.get('src')
             if not img_url:
                 continue
-                
             if not img_url.startswith('http'):
                 img_url = urllib.parse.urljoin(article_url, img_url)
-            
             img_filename = f"{slug}_{i}.jpg"
             local_path = download_image(img_url, img_filename)
-            
             if local_path:
                 img['src'] = f"../images/{img_filename}"
-        
         return str(soup)
     except Exception as e:
         logger.error(f"Error processing images: {e}")
-        return article_text
+        return article_html
 
 def check_duplicate(url):
     metadata = load_metadata()
@@ -144,49 +170,49 @@ def save_article_html(article, url):
         duplicate = check_duplicate(url)
         if duplicate:
             return duplicate
-        
-        slug = re.sub(r'[^a-zA-Z0-9\-]', '-', article.title.lower())[:50]
+
+        slug = re.sub(r'[^a-zA-Z0-9\-]', '-', article["title"].lower())[:50]
         timestamp = datetime.now().strftime("%Y-%m-%d-%H%M")
         filename = f"{timestamp}-{slug}.html"
         filepath = ENTRIES_DIR / filename
-        
+
         os.makedirs(ENTRIES_DIR, exist_ok=True)
-        
-        article_content = process_images(article.text, url, slug)
-        
-        publish_date = article.publish_date.isoformat() if article.publish_date else datetime.now().isoformat()
-        
+
+        article_content = process_images(article["content_html"], url, slug)
+
+        publish_date = article["publish_date"] or datetime.now().isoformat()
+
         template = load_template('article.html')
-        
-        author_section = f'<div class="metadata-item">✍️ {", ".join(article.authors)}</div>' if article.authors else ''
-        
+
+        author_section = f'<div class="metadata-item">✍️ {", ".join(article["authors"])}</div>' if article["authors"] else ''
+
         html_content = template.format(
-            title=article.title,
-            authors=', '.join(article.authors),
+            title=article["title"],
+            authors=', '.join(article["authors"]),
             date=publish_date[:10],
             url=url,
             author_section=author_section,
-            content=article_content.replace(chr(10), '</p><p>')
+            content=article_content
         )
-        
+
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(html_content)
-        
+
         metadata = load_metadata()
         entry_id = timestamp + "-" + slug
         metadata[entry_id] = {
-            'title': article.title,
+            'title': article["title"],
             'url': url,
             'url_hash': get_url_hash(url),
             'filename': filename,
             'date': publish_date,
-            'authors': article.authors,
+            'authors': article["authors"],
         }
         save_metadata(metadata)
-        
+
         logger.info(f"Saved new article: {filename}")
         return filename
-        
+
     except Exception as e:
         logger.error(f"Error saving article: {e}")
         raise
@@ -276,7 +302,7 @@ def main():
             logger.info(f"Processing URL: {url}")
             try:
                 article = extract_article(url)
-                if article and article.title:
+                if article and article["title"]:
                     save_article_html(article, url)
                     logger.info("Article saved successfully")
                 else:
