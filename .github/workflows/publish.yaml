@@ -1,4 +1,4 @@
-name: Publish to GitHub Pages
+name: Save Article Metadata
 
 permissions:
   contents: write
@@ -16,30 +16,6 @@ jobs:
     steps:
       - name: Checkout source repo
         uses: actions/checkout@v4
-
-      - name: Fetch existing gh-pages content
-        run: |
-          mkdir -p images
-          
-          if git ls-remote --exit-code --heads origin gh-pages; then
-            echo "Fetching existing content from gh-pages..."
-            git fetch origin gh-pages
-            git worktree add temp-gh-pages origin/gh-pages
-            
-            if [ -d "temp-gh-pages/images" ]; then
-              cp -r temp-gh-pages/images/* images/ 2>/dev/null || echo "No existing images found"
-              echo "Copied existing images to working directory"
-            fi
-            
-            if [ -f "temp-gh-pages/metadata.json" ]; then
-              cp temp-gh-pages/metadata.json .
-              echo "Copied existing metadata"
-            fi
-            
-            git worktree remove temp-gh-pages
-          else
-            echo "No existing gh-pages branch found, starting fresh"
-          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -60,10 +36,10 @@ jobs:
           cp metadata.json site/ 2>/dev/null || echo "No metadata file found"
           echo "gitpocket.saeedm.com" > site/CNAME
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
-          publish_branch: gh-pages
-          keep_files: false
+      - name: Commit and push metadata.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add metadata.json
+          git commit -m "Update metadata.json [skip ci]" || echo "No changes to commit"
+          git push origin main
