@@ -95,7 +95,8 @@ def download_image(img_url, filename):
 
 def extract_article(url):
     try:
-        resp = requests.get(url, timeout=15)
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+        resp = requests.get(url, headers=headers, timeout=15)
         resp.raise_for_status()
         doc = Document(resp.text)
         title = doc.short_title()
