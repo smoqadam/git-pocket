@@ -19,17 +19,12 @@ jobs:
 
       - name: Fetch existing gh-pages content
         run: |
-          mkdir -p entries images
+          mkdir -p images
           
           if git ls-remote --exit-code --heads origin gh-pages; then
             echo "Fetching existing content from gh-pages..."
             git fetch origin gh-pages
             git worktree add temp-gh-pages origin/gh-pages
-            
-            if [ -d "temp-gh-pages/entries" ]; then
-              cp -r temp-gh-pages/entries/* entries/ 2>/dev/null || echo "No existing entries found"
-              echo "Copied existing entries to working directory"
-            fi
             
             if [ -d "temp-gh-pages/images" ]; then
               cp -r temp-gh-pages/images/* images/ 2>/dev/null || echo "No existing images found"
@@ -62,12 +57,7 @@ jobs:
       - name: Prepare site folder
         run: |
           mkdir site
-          cp index.html site/
-          cp rss.xml site/ 2>/dev/null || echo "No RSS file found"
           cp metadata.json site/ 2>/dev/null || echo "No metadata file found"
-          cp -r entries site/
-          cp -r images site/ 2>/dev/null || echo "No images directory found"
-          cp -r templates site/ 2>/dev/null || echo "No templates directory found"
           echo "gitpocket.saeedm.com" > site/CNAME
 
       - name: Deploy to GitHub Pages
