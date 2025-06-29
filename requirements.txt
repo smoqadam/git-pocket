@@ -1,6 +1,4 @@
-newspaper3k
+readability-lxml
 lxml[html_clean]
 beautifulsoup4
 requests
-pillow
-feedgen
